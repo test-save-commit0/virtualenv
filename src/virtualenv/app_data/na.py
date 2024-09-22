@@ -1,72 +1,49 @@
 from __future__ import annotations
-
 from contextlib import contextmanager
-
 from .base import AppData, ContentStore
 
 
 class AppDataDisabled(AppData):
     """No application cache available (most likely as we don't have write permissions)."""
-
     transient = True
     can_update = False
 
-    def __init__(self) -> None:
+    def __init__(self) ->None:
         pass
-
-    error = RuntimeError("no app data folder available, probably no write access to the folder")
+    error = RuntimeError(
+        'no app data folder available, probably no write access to the folder')
 
     def close(self):
         """Do nothing."""
+        pass
 
     def reset(self):
         """Do nothing."""
-
-    def py_info(self, path):  # noqa: ARG002
-        return ContentStoreNA()
-
-    def embed_update_log(self, distribution, for_py_version):  # noqa: ARG002
-        return ContentStoreNA()
-
-    def extract(self, path, to_folder):  # noqa: ARG002
-        raise self.error
+        pass
 
     @contextmanager
-    def locked(self, path):  # noqa: ARG002
+    def locked(self, path):
         """Do nothing."""
-        yield
-
-    @property
-    def house(self):
-        raise self.error
-
-    def wheel_image(self, for_py_version, name):  # noqa: ARG002
-        raise self.error
+        pass
 
     def py_info_clear(self):
         """Nothing to clear."""
+        pass
 
 
 class ContentStoreNA(ContentStore):
-    def exists(self):
-        return False
 
     def read(self):
         """Nothing to read."""
-        return
+        pass
 
     def write(self, content):
         """Nothing to write."""
+        pass
 
     def remove(self):
         """Nothing to remove."""
-
-    @contextmanager
-    def locked(self):
-        yield
+        pass
 
 
-__all__ = [
-    "AppDataDisabled",
-    "ContentStoreNA",
-]
+__all__ = ['AppDataDisabled', 'ContentStoreNA']
