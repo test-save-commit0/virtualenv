@@ -16,7 +16,17 @@ class ReadOnlyAppData(AppDataDiskFolder):
 
 
 class _PyInfoStoreDiskReadOnly(PyInfoStoreDisk):
-    pass
+    def __init__(self, folder):
+        super().__init__(folder)
+
+    def read(self, path):
+        return super().read(path)
+
+    def write(self, path, content):
+        raise PermissionError(f"Cannot write to read-only app data: {path}")
+
+    def remove(self, path):
+        raise PermissionError(f"Cannot remove from read-only app data: {path}")
 
 
 __all__ = ['ReadOnlyAppData']
