@@ -22,11 +22,34 @@ class PythonSpec:
 
     def generate_re(self, *, windows: bool) ->re.Pattern:
         """Generate a regular expression for matching against a filename."""
-        pass
+        pattern = r""
+        if self.implementation:
+            pattern += rf"{re.escape(self.implementation)}"
+        if self.major is not None:
+            pattern += rf"{self.major}"
+            if self.minor is not None:
+                pattern += rf"\.{self.minor}"
+                if self.micro is not None:
+                    pattern += rf"\.{self.micro}"
+        if self.architecture:
+            pattern += rf"-{self.architecture}"
+        if windows:
+            pattern += r"\.exe"
+        return re.compile(pattern, re.IGNORECASE)
 
     def satisfies(self, spec):
         """Called when there's a candidate metadata spec to see if compatible - e.g. PEP-514 on Windows."""
-        pass
+        if self.implementation and spec.implementation and self.implementation.lower() != spec.implementation.lower():
+            return False
+        if self.major is not None and spec.major is not None and self.major != spec.major:
+            return False
+        if self.minor is not None and spec.minor is not None and self.minor != spec.minor:
+            return False
+        if self.micro is not None and spec.micro is not None and self.micro != spec.micro:
+            return False
+        if self.architecture and spec.architecture and self.architecture != spec.architecture:
+            return False
+        return True
 
     def __repr__(self) ->str:
         name = type(self).__name__
