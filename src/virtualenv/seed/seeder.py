@@ -24,7 +24,11 @@ class Seeder(ABC):
         :param app_data: the CLI parser
         :param interpreter: the interpreter this virtual environment is based of
         """
-        pass
+        parser.add_argument(
+            "--seed-packages",
+            nargs="*",
+            help="Specify additional packages to install when seeding the environment",
+        )
 
     @abstractmethod
     def run(self, creator):
@@ -33,7 +37,28 @@ class Seeder(ABC):
 
         :param creator: the creator (based of :class:`virtualenv.create.creator.Creator`) we used to create this         virtual environment
         """
-        pass
+        if not self.enabled:
+            return
+
+        packages = self.env.get("seed_packages", [])
+        if packages:
+            self._install_packages(creator, packages)
+
+    def _install_packages(self, creator, packages):
+        """
+        Install specified packages in the virtual environment.
+
+        :param creator: the creator of the virtual environment
+        :param packages: list of packages to install
+        """
+        pip_path = creator.bin_path / "pip"
+        if not pip_path.exists():
+            raise RuntimeError("pip not found in the virtual environment")
+
+        import subprocess
+
+        cmd = [str(pip_path), "install"] + packages
+        subprocess.check_call(cmd, env=self.env)
 
 
 __all__ = ['Seeder']
