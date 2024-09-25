@@ -36,7 +36,9 @@ class CPython3Windows(CPythonWindows, CPython3):
         move/rename *zip* file and edit `sys.path` by editing *_pth* file.
         Here the `pattern` is used only for the default *zip* file name!
         """
-        pass
+        py_version_nodot = interpreter.version_info.major * 10 + interpreter.version_info.minor
+        pattern = f"python{py_version_nodot}.zip"
+        return cls.mappings(interpreter, pattern)
 
 
 __all__ = ['CPython3', 'CPython3Posix', 'CPython3Windows']
