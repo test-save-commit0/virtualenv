@@ -25,3 +25,11 @@ _BREW = re.compile(
     )
 __all__ = ['CPython', 'CPythonPosix', 'CPythonWindows',
     'is_mac_os_framework', 'is_macos_brew']
+
+def is_mac_os_framework(interpreter):
+    """Check if the interpreter is a macOS framework build."""
+    return interpreter.executable.parts[:3] == Path("/Library/Frameworks/Python.framework").parts[:3]
+
+def is_macos_brew(interpreter):
+    """Check if the interpreter is a Homebrew-installed Python on macOS."""
+    return bool(_BREW.match(str(interpreter.executable)))
