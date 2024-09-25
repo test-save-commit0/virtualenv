@@ -27,7 +27,12 @@ class Venv(ViaGlobalRefApi):
         Venv does not handle non-existing exe sources, e.g. python.exe, so this
         patch does it.
         """
-        pass
+        if isinstance(self.interpreter, Pypy3Windows) and self.interpreter.version_info[:2] <= (3, 6):
+            executables = copy(self.interpreter.executables)
+            executables['python'] = executables['pypy']
+            executables['pythonw'] = executables['pypyw']
+            return executables
+        return None
 
     def __getattribute__(self, item):
         describe = object.__getattribute__(self, 'describe')
