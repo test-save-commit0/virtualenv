@@ -22,14 +22,16 @@ class ViaGlobalRefVirtualenvBuiltin(ViaGlobalRefApi, VirtualenvBuiltin, ABC):
     @classmethod
     def can_create(cls, interpreter):
         """By default, all built-in methods assume that if we can describe it we can create it."""
-        pass
+        return cls.can_describe(interpreter)
 
     def set_pyenv_cfg(self):
         """
         We directly inject the base prefix and base exec prefix to avoid site.py needing to discover these
         from home (which usually is done within the interpreter itself).
         """
-        pass
+        super().set_pyenv_cfg()
+        self.pyenv_cfg["base-prefix"] = self.interpreter.prefix
+        self.pyenv_cfg["base-exec-prefix"] = self.interpreter.base_exec_prefix
 
 
 __all__ = ['BuiltinViaGlobalRefMeta', 'ViaGlobalRefVirtualenvBuiltin']
