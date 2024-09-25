@@ -45,7 +45,26 @@ def fix_mach_o(exe, current, new, max_size):
     (found in the __LINKEDIT section) function. In 10.6 these new Link Edit tables are compressed by removing unused and
     unneeded bits of information, however Mac OS X 10.5 and earlier cannot read this new Link Edit table format.
     """
-    pass
+    with open(exe, 'rb+') as f:
+        content = f.read()
+        f.seek(0)
+        
+        # Find all occurrences of the current path
+        offsets = [i for i in range(len(content)) if content.startswith(current.encode(), i)]
+        
+        if not offsets:
+            raise ValueError(f"Could not find {current} in {exe}")
+        
+        # Replace the path, ensuring it doesn't exceed max_size
+        new_path = new.encode().ljust(len(current), b'\0')
+        if len(new_path) > max_size:
+            raise ValueError(f"New path {new} is too long (max {max_size} bytes)")
+        
+        for offset in offsets:
+            f.seek(offset)
+            f.write(new_path)
+        
+        f.truncate()
 
 
 class CPython3macOsBrew(CPython3, CPythonPosix):
