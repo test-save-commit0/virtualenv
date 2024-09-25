@@ -15,7 +15,8 @@ class TempAppData(AppDataDiskFolder):
 
     def reset(self):
         """This is a temporary folder, is already empty to start with."""
-        pass
+        safe_delete(self.lock.path)
+        self.__init__()
 
 
 __all__ = ['TempAppData']
