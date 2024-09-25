@@ -57,7 +57,23 @@ class LazyPathDump:
 def path_exe_finder(spec: PythonSpec) ->Callable[[Path], Generator[tuple[
     Path, bool], None, None]]:
     """Given a spec, return a function that can be called on a path to find all matching files in it."""
-    pass
+    def finder(path: Path) -> Generator[tuple[Path, bool], None, None]:
+        if not path.is_dir():
+            return
+
+        for item in path.iterdir():
+            if item.is_file() and item.stat().st_mode & os.X_OK:
+                name = item.name.lower()
+                if IS_WIN:
+                    if name.startswith(spec.implementation) and name.endswith('.exe'):
+                        yield item, True
+                else:
+                    if name.startswith(spec.implementation):
+                        yield item, True
+            elif item.is_dir():
+                yield item, False
+
+    return finder
 
 
 class PathPythonInfo(PythonInfo):
