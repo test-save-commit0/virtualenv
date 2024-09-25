@@ -15,35 +15,35 @@ class AppDataDisabled(AppData):
 
     def close(self):
         """Do nothing."""
-        pass
+        return
 
     def reset(self):
         """Do nothing."""
-        pass
+        return
 
     @contextmanager
     def locked(self, path):
         """Do nothing."""
-        pass
+        yield
 
     def py_info_clear(self):
         """Nothing to clear."""
-        pass
+        return
 
 
 class ContentStoreNA(ContentStore):
 
     def read(self):
         """Nothing to read."""
-        pass
+        return None
 
     def write(self, content):
         """Nothing to write."""
-        pass
+        return
 
     def remove(self):
         """Nothing to remove."""
-        pass
+        return
 
 
 __all__ = ['AppDataDisabled', 'ContentStoreNA']
