@@ -14,7 +14,7 @@ class Discover(ABC):
         """
         pass
 
-    def __init__(self, options) ->None:
+    def __init__(self, options) -> None:
         """
         Create a new discovery mechanism.
 
@@ -31,12 +31,26 @@ class Discover(ABC):
 
         :return: the interpreter ready to use for virtual environment creation
         """
-        pass
+        if not self._has_run:
+            self._interpreter = self._discover_interpreter()
+            self._has_run = True
+        return self._interpreter
+
+    @abstractmethod
+    def _discover_interpreter(self):
+        """
+        Abstract method to be implemented by subclasses for actual interpreter discovery.
+
+        :return: the discovered interpreter
+        """
+        raise NotImplementedError
 
     @property
     def interpreter(self):
         """:return: the interpreter as returned by :meth:`run`, cached"""
-        pass
+        if not self._has_run:
+            self.run()
+        return self._interpreter
 
 
 __all__ = ['Discover']
