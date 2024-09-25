@@ -50,11 +50,13 @@ class AppDataDiskFolder(AppData):
 
     def close(self):
         """Do nothing."""
-        pass
+        self.lock.release()
 
     def py_info_clear(self):
         """clear py info."""
-        pass
+        py_info_folder = self.lock.path / 'py'
+        with suppress(FileNotFoundError):
+            safe_delete(py_info_folder)
 
 
 class JSONStoreDisk(ContentStore, ABC):
@@ -64,6 +66,32 @@ class JSONStoreDisk(ContentStore, ABC):
         self.key = key
         self.msg = msg
         self.msg_args = *msg_args, self.file
+
+    @property
+    def file(self):
+        return self.in_folder / f'{self.key}.json'
+
+    @contextmanager
+    def locked(self):
+        with ReentrantFileLock(self.file):
+            yield
+
+    def read(self):
+        with self.locked():
+            if self.file.exists():
+                with self.file.open() as file_handler:
+                    return json.load(file_handler)
+        return None
+
+    def write(self, content):
+        with self.locked():
+            with self.file.open('w') as file_handler:
+                json.dump(content, file_handler, indent=2)
+
+    def remove(self):
+        with self.locked():
+            with suppress(FileNotFoundError):
+                self.file.unlink()
 
 
 class PyInfoStoreDisk(JSONStoreDisk):
