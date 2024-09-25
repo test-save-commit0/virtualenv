@@ -23,7 +23,7 @@ class Activator(ABC):
         :param interpreter: the interpreter we need to support
         :return: ``True`` if supported, ``False`` otherwise
         """
-        pass
+        return True  # By default, assume support for all interpreters
 
     @classmethod
     def add_parser_arguments(cls, parser, interpreter):
@@ -33,7 +33,11 @@ class Activator(ABC):
         :param parser: the CLI parser
         :param interpreter: the interpreter this virtual environment is based of
         """
-        pass
+        parser.add_argument(
+            "--prompt",
+            default=".",
+            help="Provides an alternative prompt prefix for this environment"
+        )
 
     @abstractmethod
     def generate(self, creator):
@@ -42,7 +46,7 @@ class Activator(ABC):
 
         :param creator: the creator (based of :class:`virtualenv.create.creator.Creator`) we used to create this         virtual environment
         """
-        pass
+        raise NotImplementedError("Subclasses must implement this method")
 
 
 __all__ = ['Activator']
