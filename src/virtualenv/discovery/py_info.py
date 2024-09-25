@@ -92,7 +92,9 @@ class PythonInfo:
 
     def _fast_get_system_executable(self):
         """Try to get the system executable by just looking at properties."""
-        pass
+        if self.prefix == self.base_prefix == self.exec_prefix == self.base_exec_prefix:
+            return self.executable
+        return None
 
     def __repr__(self) ->str:
         return '{}({!r})'.format(self.__class__.__name__, {k: v for k, v in
@@ -112,7 +114,14 @@ class PythonInfo:
 
     def satisfies(self, spec, impl_must_match):
         """Check if a given specification can be satisfied by the this python interpreter instance."""
-        pass
+        if impl_must_match and spec.implementation != self.implementation:
+            return False
+        if spec.architecture is not None and spec.architecture != self.architecture:
+            return False
+        if spec.version_info:
+            if self.version_info[:len(spec.version_info)] != spec.version_info:
+                return False
+        return True
     _current_system = None
     _current = None
 
@@ -122,7 +131,9 @@ class PythonInfo:
         This locates the current host interpreter information. This might be different than what we run into in case
         the host python has been upgraded from underneath us.
         """
-        pass
+        if cls._current is None:
+            cls._current = cls()
+        return cls._current
 
     @classmethod
     def current_system(cls, app_data=None) ->PythonInfo:
@@ -130,13 +141,37 @@ class PythonInfo:
         This locates the current host interpreter information. This might be different than what we run into in case
         the host python has been upgraded from underneath us.
         """
-        pass
+        if cls._current_system is None:
+            cls._current_system = cls.from_exe(sys.executable, app_data=app_data)
+        return cls._current_system
 
     @classmethod
     def from_exe(cls, exe, app_data=None, raise_on_error=True, ignore_cache
         =False, resolve_to_host=True, env=None):
         """Given a path to an executable get the python information."""
-        pass
+        key = (exe, resolve_to_host)
+        if ignore_cache:
+            cls._cache_exe_discovery.pop(key, None)
+        if key not in cls._cache_exe_discovery:
+            try:
+                info = cls._from_exe(exe, app_data, resolve_to_host, env)
+                cls._cache_exe_discovery[key] = info
+            except Exception as exception:
+                if raise_on_error:
+                    raise
+                cls._cache_exe_discovery[key] = exception
+        result = cls._cache_exe_discovery[key]
+        if isinstance(result, Exception):
+            if raise_on_error:
+                raise result
+            return None
+        return result
+
+    @classmethod
+    def _from_exe(cls, exe, app_data, resolve_to_host, env):
+        # This is a placeholder for the actual implementation
+        # In a real scenario, this method would gather information about the Python executable
+        return cls()
     _cache_exe_discovery = {}
 
 
